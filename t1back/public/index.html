@@ -12,6 +12,28 @@
         <button>Send</button>
     </form>
     <p id="messages"></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const form = document.getElementById('form');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const messages = document.getElementById('messages');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (username.value && password.value) {
+                socket.emit('login', {
+                    username: username.value,
+                    password: password.value,
+                });
+                username.value = '';
+                password.value = '';
+            }
+        });
+    </script>
 </body>
 
 </html>

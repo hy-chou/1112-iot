@@ -33,6 +33,10 @@
                 password.value = '';
             }
         });
+
+        socket.on('message', (msg) => {
+            messages.textContent = msg;
+        });
     </script>
 </body>
 

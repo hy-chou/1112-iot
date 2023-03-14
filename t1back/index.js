@@ -41,6 +41,16 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('door', () => {
+    if (legalUsers.has(socket.id)) {
+      // openTheDoor();
+
+      socket.emit('message', 'door OK');
+    } else {
+      socket.emit('message', 'door KO');
+    }
+  });
+
   socket.on('disconnect', () => {
     legalUsers.delete(socket.id);
     console.log(legalUsers);

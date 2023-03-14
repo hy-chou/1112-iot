@@ -12,6 +12,7 @@
         <button>Send</button>
     </form>
     <p id="messages"></p>
+    <img id="image" width="640" height="480" />
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -21,6 +22,7 @@
         const username = document.getElementById('username');
         const password = document.getElementById('password');
         const messages = document.getElementById('messages');
+        const image = document.getElementById('image');
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -36,6 +38,10 @@
 
         socket.on('message', (msg) => {
             messages.textContent = msg;
+        });
+
+        socket.on('image', (data) => {
+            image.src = data;
         });
     </script>
 </body>

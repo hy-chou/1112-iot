@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
+const http = require('node:http');
+
 const express = require('express');
-const http = require('http');
 const { Server } = require('socket.io');
 
 const { authenticate } = require('./src/authenticate');
+const Camera = require('./src/Camera');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +23,7 @@ io.on('connection', (socket) => {
 
     if (isAuthenticated) {
       socket.emit('message', 'OK');
+      Camera.stream(socket);
     } else {
       socket.emit('message', 'KO');
     }

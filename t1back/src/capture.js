@@ -17,7 +17,7 @@ const capture = (socket) => {
     if (code === 0) {
       socket.emit('image', `data:image/png;base64,${image.slice(2, -2)}`);
     }
-    console.log(`child process exited with code ${code}`);
+    console.log(`capture.py exited with code ${code}`);
   });
 };
 

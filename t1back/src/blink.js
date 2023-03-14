@@ -9,7 +9,7 @@ const blink = () => {
   );
 
   subprocess.on('close', async (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`blink.py exited with code ${code}`);
   });
 };
 

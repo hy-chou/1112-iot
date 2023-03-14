@@ -2,11 +2,9 @@
 const { spawn } = require('node:child_process');
 
 const capture = (socket) => {
-  const subprocess = spawn(
-    '/usr/bin/python3',
-    ['capture.py'],
-    { stdio: ['ignore', 'pipe', 'ignore'] },
-  );
+  const subprocess = spawn('/usr/bin/python3', ['capture.py'], {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
   let image = '';
 
   subprocess.stdout.on('data', (data) => {

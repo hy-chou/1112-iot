@@ -8,6 +8,5 @@ if (argv.length === 3) {
   const password = argv[2];
 
   console.log(password);
-  bcrypt.hash(password, saltRounds)
-    .then((hash) => console.log(hash));
+  bcrypt.hash(password, saltRounds).then((hash) => console.log(hash));
 }

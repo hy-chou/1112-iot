@@ -6,6 +6,7 @@ const { Server } = require('socket.io');
 
 const { authenticate } = require('./src/authenticate');
 const { capture } = require('./src/capture');
+const { blink } = require('./src/blink');
 
 const app = express();
 const server = http.createServer(app);
@@ -44,6 +45,7 @@ io.on('connection', (socket) => {
   socket.on('door', () => {
     if (legalUsers.has(socket.id)) {
       // openTheDoor();
+      blink();
 
       socket.emit('message', 'door OK');
     } else {

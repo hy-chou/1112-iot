@@ -6,25 +6,29 @@
 </head>
 
 <body>
-    <form action="" id="form">
+    <form action="" id="loginForm">
         <input name="username" id="username" />
         <input name="password" id="password" />
         <button>Login</button>
     </form>
-    <p id="messages"></p>
+    <form action="" id="cameraForm">
+        <button>Update the camera</button>
+    </form>
     <img id="image" width="640" height="480" />
+    <p id="messages"></p>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        const form = document.getElementById('form');
+        const loginForm = document.getElementById('loginForm');
         const username = document.getElementById('username');
         const password = document.getElementById('password');
-        const messages = document.getElementById('messages');
+        const cameraForm = document.getElementById('cameraForm');
         const image = document.getElementById('image');
+        const messages = document.getElementById('messages');
 
-        form.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (username.value && password.value) {
                 socket.emit('login', {
@@ -36,12 +40,17 @@
             }
         });
 
-        socket.on('message', (msg) => {
-            messages.textContent = msg;
+        cameraForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            socket.emit('camera');
         });
 
         socket.on('image', (data) => {
             image.src = data;
+        });
+
+        socket.on('message', (msg) => {
+            messages.textContent = msg;
         });
     </script>
 </body>

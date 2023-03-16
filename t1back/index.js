@@ -27,6 +27,7 @@ io.on('connection', (socket) => {
       console.log(legalUsers);
 
       socket.emit('message', 'login OK');
+      socket.emit('loginOK');
     } else {
       socket.emit('message', 'login KO');
     }

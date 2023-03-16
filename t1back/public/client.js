@@ -1,13 +1,15 @@
 // eslint-disable-next-line no-undef
 const socket = io();
 
+const loginStep = document.getElementById('login-step');
 const loginForm = document.getElementById('loginForm');
 const username = document.getElementById('username');
 const password = document.getElementById('password');
-const cameraForm = document.getElementById('cameraForm');
-const doorForm = document.getElementById('doorForm');
+
 const image = document.getElementById('image');
-const messages = document.getElementById('messages');
+
+const cameraButton = document.getElementById('camera-button');
+const doorButton = document.getElementById('door-button');
 
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -21,20 +23,18 @@ loginForm.addEventListener('submit', (e) => {
   }
 });
 
-cameraForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  socket.emit('camera');
-});
-
-doorForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  socket.emit('door');
+socket.on('loginOK', () => {
+  loginStep.classList += ' hidden';
 });
 
 socket.on('image', (data) => {
   image.src = data;
 });
 
-socket.on('message', (msg) => {
-  messages.textContent = msg;
+cameraButton.addEventListener('click', () => {
+  socket.emit('camera');
+});
+
+doorButton.addEventListener('click', () => {
+  socket.emit('door');
 });

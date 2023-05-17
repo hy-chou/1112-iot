@@ -1,6 +1,5 @@
 from json import loads
-from math import sqrt, ceil
-from sys import argv
+from math import sqrt
 
 import numpy as np
 
@@ -9,6 +8,7 @@ def getData(filepath='./data.json'):
     with open(filepath) as f:
         lines = f.readline()
     return loads(lines)
+
 
 def euDist(SL1, SL2):
     validDim = 0
@@ -30,22 +30,23 @@ def getTops(targetSL, k=10):
     dataSorted = sorted(data, key=lambda x: x[2])
 
     tops = []
+    weights = []
     for i in range(k):
-        rangelimit = 1.7
-        if (i > 0) and (dataSorted[i][2] > rangelimit):
-            break
-        for _ in range(ceil((k - i)**2)):
-            tops.append(dataSorted[i][0])
+        weights.append(1 / ((dataSorted[i][2] + 1e-2) ** 2))
+        tops.append(dataSorted[i][0])
 
-    return np.mean(tops, axis=0)
+    return np.average(tops, weights=weights, axis=0)
 
 
 if __name__ == '__main__':
-    if (len(argv) != 5):
-        print("usage:  python3 main.py SL1 SL2 SL3 SL4")
-        exit()
+    for kvalue in range(1, 27):
+        print(kvalue, end='\t')
 
-    targetSL = [int(i) for i in argv[1:5]]
-    top1 = getTops(targetSL, 5)
-
-    print(top1)
+        for testing in ['./data.json', './testing.json']:
+            err = 0
+            testing = getData(testing)
+            for testee in testing:
+                res = getTops(testee[1], kvalue)
+                err += euDist(res, testee[0])
+            print(err, end='\t')
+        print()

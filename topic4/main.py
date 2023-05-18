@@ -1,3 +1,4 @@
+from sys import argv
 from json import loads
 from math import sqrt
 
@@ -23,7 +24,7 @@ def euDist(SL1, SL2):
     return sqrt(d2) / validDim
 
 
-def getTops(targetSL, k=10):
+def getTops(targetSL, k=9):
     data = getData()
     for i in range(len(data)):
         data[i].append(euDist(targetSL, data[i][1]))
@@ -39,14 +40,6 @@ def getTops(targetSL, k=10):
 
 
 if __name__ == '__main__':
-    for kvalue in range(1, 27):
-        print(kvalue, end='\t')
-
-        for testing in ['./data.json', './testing.json']:
-            err = 0
-            testing = getData(testing)
-            for testee in testing:
-                res = getTops(testee[1], kvalue)
-                err += euDist(res, testee[0])
-            print(err, end='\t')
-        print()
+    target = [argv[i] for i in range(2, 6)]
+    res = getTops(target)
+    print(res)

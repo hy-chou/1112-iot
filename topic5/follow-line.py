@@ -46,6 +46,8 @@ picam2.start()
 next_duty_cycle = DC_CENTER
 kit.motor1.throttle = THROTTLE_SLOW
 
+fbgcPtr = 0
+fbgcHistory = [0 for _ in range(10)]
 
 while True:
 
@@ -55,6 +57,13 @@ while True:
     im = cv2.GaussianBlur(im, (49, 49), 0)
 
     _, imThsh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    farBackgroundCount = np.count_nonzero(imThsh[-1])
+    fbgcHistory[fbgcPtr] = farBackgroundCount
+    fbgcPtr = (fbgcPtr + 1) % len(fbgcHistory)
+
+    if (farBackgroundCount < np.mean(fbgcHistory) - 100):
+        signal_handler(0, 0)
 
     imCanny = cv2.Canny(imThsh, 16, 255)
     pos = np.mean(np.nonzero(imCanny[0]))

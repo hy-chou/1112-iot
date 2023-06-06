@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 from picamera2 import Picamera2
 
-CROP_TOP = 0
-CROP_BOTTOM = 80
-CROP_LEFT = 0
+CROP_TOP = 0  # >= 0
+CROP_BOTTOM = 80  # <= 480
+CROP_LEFT = 0  # >= 0
 CROP_RIGHT = 640 - CROP_LEFT
 
 
@@ -14,20 +14,14 @@ picam2.start()
 
 im = picam2.capture_array()
 im = im[CROP_TOP:CROP_BOTTOM, CROP_LEFT:CROP_RIGHT]
-# im = cv2.rotate(im, cv2.ROTATE_180)
-cv2.imwrite('im_bgr.jpeg', im)
+im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+im = cv2.rotate(im, cv2.ROTATE_180)
+cv2.imwrite('im.jpeg', im)
 
-im_b, im_g, im_r = im[:, :, 0], im[:, :, 1], im[:, :, 2]
+im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
+im = cv2.GaussianBlur(im, (49, 49), 0)
+_, im = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+cv2.imwrite('im_binary.jpeg', im)
 
-im_b = cv2.GaussianBlur(im_b, (5, 5), 0)
-im_g = cv2.GaussianBlur(im_g, (5, 5), 0)
-im_r = cv2.GaussianBlur(im_r, (5, 5), 0)
-_, im_b = cv2.threshold(im_b, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-_, im_g = cv2.threshold(im_g, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-_, im_r = cv2.threshold(im_r, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
-im = np.logical_and(im_b, im_g)
-im = np.logical_and(im, im_r) * 255
-cv2.imwrite('im_gray.jpeg', im)
-
-print(im.shape)
+im = cv2.Canny(im, 16, 255)
+cv2.imwrite('im_canny.jpeg', im)

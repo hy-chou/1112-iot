@@ -68,7 +68,7 @@ picam2.start()
 next_duty_cycle = DC_CENTER
 kit.motor1.throttle = THROTTLE_SLOW
 
-background_count_predicted = CROP_AREA
+far_count_predicted = 10 * (CROP_RIGHT - CROP_LEFT)
 
 
 while True:
@@ -83,16 +83,18 @@ while True:
     )
     imEdge = cv2.Canny(imBinary, 16, 255)
 
-    print(np.std(imGG))
+    # stdGG = np.std(imGG)
+    # print(f'std = {stdGG}')
 
     # Check Intersection
-    background_count = len(np.argwhere(imBinary)[:, 1])
-    print(f'background count = {background_count}')
-    # print(background_count - background_count_predicted)
-    if background_count > background_count_predicted + 3000:
+    far_count = len(np.argwhere(imBinary[-10:])[:, 1])
+    far_count_gain = far_count - far_count_predicted
+    print(f'far count = {far_count}\tgain = {far_count_gain}')
+    if far_count_gain > 900:
         handleIntersection()
-    background_count_predicted += background_count
-    background_count_predicted /= 2
+    far_count_predicted *= 3
+    far_count_predicted += far_count
+    far_count_predicted //= 4
 
     # Control
     edges_near = np.argwhere(imEdge[5:15])[:, 1]

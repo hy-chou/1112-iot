@@ -69,11 +69,11 @@ picam2.start()
 next_duty_cycle = DC_CENTER
 kit.motor1.throttle = THROTTLE_SLOW
 
-pwm.ChangeDutyCycle(DC_RIGHT)
+pwm.ChangeDutyCycle(DC_LEFT)
 print('starting sleep')
 time.sleep(SLEEP_TIME_90)
 print('ending sleep')
-pwm.ChangeDutyCycle((DC_RIGHT * 2 + DC_CENTER) / 3)
+pwm.ChangeDutyCycle((DC_LEFT * 2 + DC_CENTER) / 3)
 
 while True:
     # Capture and Filter

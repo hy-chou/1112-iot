@@ -26,6 +26,7 @@ IDEAL_POS = (CROP_RIGHT - CROP_LEFT) / 2
 LINE_NEAR = 0
 LINE_FAR = 10
 SLEEP_TIME_90 = 3.2
+SLEEP_TIME_45 = 1.6
 
 
 def handleExit(signal=None, frame=None):
@@ -69,11 +70,13 @@ picam2.start()
 next_duty_cycle = DC_CENTER
 kit.motor1.throttle = THROTTLE_SLOW
 
-pwm.ChangeDutyCycle(DC_RIGHT)
+
 print('starting sleep')
-time.sleep(SLEEP_TIME_90)
+time.sleep(SLEEP_TIME_45)
+pwm.ChangeDutyCycle(DC_LEFT)
+time.sleep(SLEEP_TIME_45)
+pwm.ChangeDutyCycle((DC_LEFT * 2 + DC_CENTER) / 3)
 print('ending sleep')
-pwm.ChangeDutyCycle((DC_RIGHT * 2 + DC_CENTER) / 3)
 
 while True:
     # Capture and Filter

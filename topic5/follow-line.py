@@ -36,17 +36,18 @@ def signal_handler(signal, frame):
 
 
 def getDutyCycle(diff):
-    # print(diff)
     if diff < -150:
         dc = DC_RIGHT
-    elif diff < -0:
-        dc = (DC_RIGHT + DC_CENTER) / 2
-    elif diff > 0:
-        dc = (DC_LEFT + DC_CENTER) / 2
-    elif diff > 150:
-        dc = DC_LEFT
+    elif diff < -100:
+        dc = (DC_RIGHT * 2 + DC_CENTER) / 3
+    elif diff < 0:
+        dc = (DC_RIGHT + DC_CENTER * 2) / 3
+    elif diff < 100:
+        dc = (DC_LEFT + DC_CENTER * 2) / 3
+    elif diff < 150:
+        dc = (DC_LEFT * 2 + DC_CENTER) / 3
     else:
-        dc = DC_CENTER
+        dc = DC_LEFT
 
     return dc
 
@@ -67,30 +68,28 @@ farBackgroundCountPredict = 0
 while True:
     im = picam2.capture_array()
     im = im[CROP_TOP:CROP_BOTTOM, CROP_LEFT:CROP_RIGHT]
-    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    for _ in range(3):
-        im = cv2.GaussianBlur(im, (31, 31), 0)
+    im = cv2.GaussianBlur(im, (31, 31), 5)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)[:, :, 1]
+    im = cv2.GaussianBlur(im, (31, 31), 5)
+    thresh, im = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    im = cv2.Canny(im, 16, 255)
 
-    _, imThsh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    farBackgroundCount = np.count_nonzero(imThsh[-10:])
-    print(farBackgroundCountPredict - 1600, farBackgroundCount)
-    if (farBackgroundCount < farBackgroundCountPredict - 1600):
-        print('======')
-        print('  ||  ')
-        print(farBackgroundCountPredict, farBackgroundCount)
-        signal_handler(0, 0)
-    farBackgroundCountPredict += farBackgroundCountPredict + farBackgroundCount
-    farBackgroundCountPredict //= 3
-
-    imCanny = cv2.Canny(imThsh, 16, 255)
-    nearEdges = np.argwhere(imCanny)[:, 1]
-    if len(nearEdges) > 0:
-        pos = np.mean(nearEdges)
+    edges_near = np.argwhere(im[5:15])[:, 1]
+    if len(edges_near) > 0:
+        pos = np.mean(edges_near)
+        diff = pos - IDEAL_POS
+        print(f'diff = {diff}')
+        next_duty_cycle = getDutyCycle(diff)
+        pwm.ChangeDutyCycle(next_duty_cycle)
     else:
-        pos = IDEAL_POS
+        print('N/A')
 
-    diff = pos - IDEAL_POS
-
-    next_duty_cycle = getDutyCycle(diff)
-    pwm.ChangeDutyCycle(next_duty_cycle)
+    # farBackgroundCount = np.count_nonzero(im[-10:])
+    # print(farBackgroundCountPredict - 1600, farBackgroundCount)
+    # if (farBackgroundCount < farBackgroundCountPredict - 1600):
+    #     print('======')
+    #     print('  ||  ')
+    #     print(farBackgroundCountPredict, farBackgroundCount)
+    #     signal_handler(0, 0)
+    # farBackgroundCountPredict += farBackgroundCountPredict + farBackgroundCount
+    # farBackgroundCountPredict //= 3

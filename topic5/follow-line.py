@@ -77,14 +77,19 @@ while True:
     im = im[CROP_TOP:CROP_BOTTOM, CROP_LEFT:CROP_RIGHT]
     im = cv2.GaussianBlur(im, (31, 31), 5)
     im = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)[:, :, 1]
-    im = cv2.GaussianBlur(im, (31, 31), 5)
-    _, imBinary = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    imGG = cv2.GaussianBlur(im, (31, 31), 5)
+    _, imBinary = cv2.threshold(
+        imGG, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )
     imEdge = cv2.Canny(imBinary, 16, 255)
+
+    print(np.std(imGG))
 
     # Check Intersection
     background_count = len(np.argwhere(imBinary)[:, 1])
+    print(f'background count = {background_count}')
     # print(background_count - background_count_predicted)
-    if background_count - background_count_predicted > 3000:
+    if background_count > background_count_predicted + 3000:
         handleIntersection()
     background_count_predicted += background_count
     background_count_predicted /= 2

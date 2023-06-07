@@ -18,7 +18,7 @@ DC_LEFT = 5
 DC_RIGHT = 8.5
 DC_CENTER = (DC_LEFT + DC_RIGHT) / 2
 CROP_TOP = 0
-CROP_BOTTOM = 80
+CROP_BOTTOM = 160
 CROP_LEFT = 0
 CROP_RIGHT = 640 - CROP_LEFT
 IDEAL_POS = (CROP_RIGHT - CROP_LEFT) / 2
@@ -35,6 +35,22 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 
+def getDutyCycle(diff):
+    # print(diff)
+    if diff < -150:
+        dc = DC_RIGHT
+    elif diff < -0:
+        dc = (DC_RIGHT + DC_CENTER) / 2
+    elif diff > 0:
+        dc = (DC_LEFT + DC_CENTER) / 2
+    elif diff > 150:
+        dc = DC_LEFT
+    else:
+        dc = DC_CENTER
+
+    return dc
+
+
 signal.signal(signal.SIGINT, signal_handler)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN_FRONT_MOTOR, GPIO.OUT)
@@ -46,44 +62,35 @@ picam2.start()
 next_duty_cycle = DC_CENTER
 kit.motor1.throttle = THROTTLE_SLOW
 
-fbgcPtr = 0
-fbgcHistory = [0 for _ in range(10)]
+farBackgroundCountPredict = 0
 
 while True:
-
     im = picam2.capture_array()
     im = im[CROP_TOP:CROP_BOTTOM, CROP_LEFT:CROP_RIGHT]
     im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    im = cv2.GaussianBlur(im, (49, 49), 0)
+    for _ in range(3):
+        im = cv2.GaussianBlur(im, (31, 31), 0)
 
     _, imThsh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    farBackgroundCount = np.count_nonzero(imThsh[-1])
-    fbgcHistory[fbgcPtr] = farBackgroundCount
-    fbgcPtr = (fbgcPtr + 1) % len(fbgcHistory)
-
-    if (farBackgroundCount < np.mean(fbgcHistory) - 100):
+    farBackgroundCount = np.count_nonzero(imThsh[-10:])
+    print(farBackgroundCountPredict - 1600, farBackgroundCount)
+    if (farBackgroundCount < farBackgroundCountPredict - 1600):
+        print('======')
+        print('  ||  ')
+        print(farBackgroundCountPredict, farBackgroundCount)
         signal_handler(0, 0)
+    farBackgroundCountPredict += farBackgroundCountPredict + farBackgroundCount
+    farBackgroundCountPredict //= 3
 
     imCanny = cv2.Canny(imThsh, 16, 255)
-    pos = np.mean(np.nonzero(imCanny[0]))
+    nearEdges = np.argwhere(imCanny)[:, 1]
+    if len(nearEdges) > 0:
+        pos = np.mean(nearEdges)
+    else:
+        pos = IDEAL_POS
 
     diff = pos - IDEAL_POS
 
-    if diff < -100:
-        dc = DC_RIGHT
-    elif diff < -50:
-        dc = (DC_RIGHT + DC_CENTER) / 2
-    elif diff < -10:
-        dc = (DC_RIGHT + DC_CENTER * 2) / 3
-    elif diff > 10:
-        dc = (DC_LEFT + DC_CENTER * 2) / 3
-    elif diff > 50:
-        dc = (DC_LEFT + DC_CENTER) / 2
-    elif diff > 100:
-        dc = DC_LEFT
-    else:
-        dc = DC_CENTER
-
-    next_duty_cycle = dc
+    next_duty_cycle = getDutyCycle(diff)
     pwm.ChangeDutyCycle(next_duty_cycle)

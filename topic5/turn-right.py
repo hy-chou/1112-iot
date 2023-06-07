@@ -87,6 +87,7 @@ while True:
     if flag1 and stdGG > 20:
         break
 
+flag_on_track = False
 while True:
     # Capture and Filter
     im = picam2.capture_array()
@@ -105,7 +106,9 @@ while True:
     background_count = len(np.argwhere(imBinary)[:, 1])
     print(f'background count = {background_count}')
     # print(background_count - background_count_predicted)
-    if background_count > background_count_predicted + 3000:
+    if background_count >= 25000:
+        flag_on_track = True
+    if flag_on_track and background_count > background_count_predicted + 3000:
         handleIntersection()
     background_count_predicted += background_count
     background_count_predicted /= 2

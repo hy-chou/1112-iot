@@ -22,6 +22,9 @@ cv2.imwrite('im.jpeg', im)
 imG = cv2.GaussianBlur(im, (31, 31), 5)
 imS = cv2.cvtColor(imG, cv2.COLOR_RGB2HSV)[:, :, 1]
 imGG = cv2.GaussianBlur(imS, (31, 31), 5)
+
+cv2.imwrite('imBlurBlur.jpeg', imGG)
+
 thresh, imBinary = cv2.threshold(
     imGG, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 imEdge = cv2.Canny(imBinary, 16, 255)

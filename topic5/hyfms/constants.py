@@ -1,99 +1,27 @@
 PIN_FRONT_MOTOR = 17  # 11 -> 17
 PWM_FREQ = 50
 STEP = 15
-THROTTLE_SLOW = 0.8
+THROTTLE_SLOW = 0.82
 THROTTLE_STOP = 0
 DC_LEFT = 5
 DC_RIGHT = 8.5
 DC_CENTER = (DC_LEFT + DC_RIGHT) / 2
+DC_L3 = DC_LEFT
+DC_L2 = (DC_LEFT * 2 + DC_CENTER) / 3
+DC_L1 = (DC_LEFT + DC_CENTER * 2) / 3
+DC_R1 = (DC_RIGHT + DC_CENTER * 2) / 3
+DC_R2 = (DC_RIGHT * 2 + DC_CENTER) / 3
+DC_R3 = DC_RIGHT
 CROP_TOP = 0
 CROP_BOTTOM = 160
 CROP_LEFT = 0
 CROP_RIGHT = 640 - CROP_LEFT
 CROP_AREA = (CROP_BOTTOM - CROP_TOP) * (CROP_RIGHT - CROP_LEFT)
 IDEAL_POS = (CROP_RIGHT - CROP_LEFT) / 2
-LINE_NEAR = 0
-LINE_FAR = 10
-
-
-# def handleExit(signal=None, frame=None):
-#     picam2.stop()
-#     kit.motor1.throttle = THROTTLE_STOP
-#     pwm.ChangeDutyCycle(DC_CENTER)
-#     time.sleep(0.3)
-#     GPIO.cleanup()
-#     sys.exit(0)
-
-
-# def handleIntersection():
-#     handleExit()
-
-
-# def getDutyCycle(diff):
-#     if diff < -150:
-#         dc = DC_RIGHT
-#     elif diff < -100:
-#         dc = (DC_RIGHT * 2 + DC_CENTER) / 3
-#     elif diff < 0:
-#         dc = (DC_RIGHT + DC_CENTER * 2) / 3
-#     elif diff < 100:
-#         dc = (DC_LEFT + DC_CENTER * 2) / 3
-#     elif diff < 150:
-#         dc = (DC_LEFT * 2 + DC_CENTER) / 3
-#     else:
-#         dc = DC_LEFT
-
-#     return dc
-
-# def init
-# # signal.signal(signal.SIGINT, handleExit)
-# # GPIO.setmode(GPIO.BCM)
-# # GPIO.setup(PIN_FRONT_MOTOR, GPIO.OUT)
-# # pwm = GPIO.PWM(PIN_FRONT_MOTOR, PWM_FREQ)
-# # pwm.start(DC_CENTER)
-# # kit = Kit(i2c=board.I2C())  # pi hat v.5, M2 L+R-
-# # picam2 = Picamera2()
-# # picam2.start()
-
-
-# # next_duty_cycle = DC_CENTER
-# # kit.motor1.throttle = THROTTLE_SLOW
-
-# # far_count_predicted = 10 * (CROP_RIGHT - CROP_LEFT)
-
-
-# # while True:
-# #     # Capture and Filter
-# #     im = picam2.capture_array()
-# #     im = im[CROP_TOP:CROP_BOTTOM, CROP_LEFT:CROP_RIGHT]
-# #     im = cv2.GaussianBlur(im, (31, 31), 5)
-# #     im = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)[:, :, 1]
-# #     imGG = cv2.GaussianBlur(im, (31, 31), 5)
-# #     _, imBinary = cv2.threshold(
-# #         imGG, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
-# #     )
-# #     imEdge = cv2.Canny(imBinary, 16, 255)
-
-# #     # stdGG = np.std(imGG)
-# #     # print(f'std = {stdGG}')
-
-# #     # Check Intersection
-# #     far_count = len(np.argwhere(imBinary[-10:])[:, 1])
-# #     far_count_gain = far_count - far_count_predicted
-# #     print(f'far count = {far_count}\tgain = {far_count_gain}')
-# #     if far_count_gain > 900:
-# #         handleIntersection()
-# #     far_count_predicted *= 3
-# #     far_count_predicted += far_count
-# #     far_count_predicted //= 4
-
-# #     # Control
-# #     edges_near = np.argwhere(imEdge[5:15])[:, 1]
-# #     if len(edges_near) > 0:
-# #         pos = np.mean(edges_near)
-# #         diff = pos - IDEAL_POS
-# #         # print(f'diff = {diff}')
-# #         next_duty_cycle = getDutyCycle(diff)
-# #         pwm.ChangeDutyCycle(next_duty_cycle)
-# #     # else:
-# #     #     print('diff = N/A')
+TIME_TURN90 = 3.6
+TIME_GO45 = 1.2
+TIME_TURN45 = 1.7
+varBlurBlur_THRESHOLD = 129
+FAR_COUNT_GAIN_MIN = 500
+FAR_COUNT_GAIN_MAX = 4115
+FAR_COUNT_GAIN_PREDICT_MIN = 800
